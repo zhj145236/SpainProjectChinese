@@ -1,0 +1,93 @@
+{extend name="default/base/base_member" /}
+{block name="member_btn"}
+<a class="dsm-btn dsm-btn-orange" title="{$Think.lang.predeposit_online_recharge}" href="{:url('Predeposit/recharge_add')}"> <i class="iconfont">&#xe6f0;</i> {$Think.lang.predeposit_online_recharge} </a>
+{/block}
+{block name="member_main"}
+
+
+
+
+<div class="alert">
+    <span class="mr30">{$Think.lang.predeposit_pricetype_available}{$Think.lang.ds_colon}<strong class="mr5 red" style="font-size: 18px;">{$member_info.available_predeposit}</strong>{$Think.lang.ds_yuan}
+    </span>
+    <!-- <span>{$Think.lang.predeposit_pricetype_freeze}{$Think.lang.ds_colon}<strong class="mr5 blue" style="font-size: 18px;">{$member_info.freeze_predeposit}</strong>{$Think.lang.ds_yuan}</span> -->
+</div>
+        <form method="get">
+            <table class="dsm-search-table">
+                <tr>
+                    
+                    <td class="w160 tc">
+                        <input type="text" class="text w160" name="pdr_sn" value="{$Request.param.pdr_sn}" placeholder="{$Think.lang.predeposit_rechargesn}"/>
+                    </td>
+                    <td class="w70 tc">
+                        <input type="submit" class="submit" value="{$Think.lang.ds_search}" />
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </form>
+        <table class="dsm-default-table">
+            <thead>
+                <tr>
+                    <th>{$Think.lang.predeposit_rechargesn}</th>
+                    <th class="w150">{$Think.lang.predeposit_recharge_price}({$Think.lang.ds_yuan})</th>
+                    <th class="w150">{$Think.lang.predeposit_recharge_zhuanzhangbank}</th>
+                    <th class="w150">{$Think.lang.predeposit_recordimgs}</th>
+                    <th class="w150">{$Think.lang.predeposit_addtime}</th>
+                    <th class="w150">{$Think.lang.predeposit_paystate}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {notempty name="predeposit_list"}
+                {foreach name="predeposit_list" item="val" }
+                <tr class="bd-line">
+                    <td>{$val.pdr_sn}</td>
+                    <td class="red">+{$val.pdr_amount}</td>
+                    <td>【{$val.pdr_paymentbankname}】<br/>{$val.pdr_paymentbank}</td>
+                    <td>
+                        <a href="{:ds_get_pic(ATTACH_RECHARGE,$val.pdr_paymentimgs)}" ><div class="banks-picture"><img src="{:ds_get_pic(ATTACH_RECHARGE,$val.pdr_paymentimgs)}" style="height:30px;"/></div></a>
+                    </td>
+                    <td>{$val.pdr_addtime|date="Y-m-d H:i:s"}</td>
+                    <td>
+                        {if $val['pdr_status']==1}
+                            {$Think.lang.predeposit_rechargepaysuccess}
+                        {elseif $val['pdr_status']==-1}
+                            {$Think.lang.predeposit_recharge_fail}
+                        {else/}
+                            {$Think.lang.predeposit_rechargestate_auditing}
+                        {/if}
+                    </td>
+                </tr>
+                {if $val.pdr_admin_remark neq ''}
+                <tr class="bd-line">
+                    <td colspan="6" style="text-align: left;">{$Think.lang.predeposit_adminremark} ： {$val.pdr_admin_remark}</td>
+                </tr>
+                {/if}
+                {/foreach}
+                {else/}
+                <tr>
+                    <td colspan="20" class="norecord"><div class="warning-option"><i>&nbsp;</i><span>{$Think.lang.no_record}</span></div></td>
+                </tr>
+                {/notempty}
+            </tbody>
+            <tfoot>
+                {notempty name="predeposit_list"}
+                <tr>
+                    <td colspan="20"><div class="pagination">{$show_page|raw}</div></td>
+                </tr>
+                {/notempty}
+            </tfoot>
+        </table>
+
+
+
+
+
+
+
+
+
+{/block}
+
+
+

@@ -1,0 +1,237 @@
+{include file="public/header" /}
+
+
+
+
+<style type="text/css">
+    .page table tbody tr td img {background: #FFF;display: inline;border: dotted 1px #CBE9F3;padding: 2px;margin: 5px;vertical-align: middle;}
+</style>
+<div class="page">
+    <div class="fixed-bar">
+        <div class="item-title">
+            <div class="subject">
+                <h3>{$Think.lang.ds_predeposit}</h3>
+                <h5></h5>
+            </div>
+        </div>
+    </div>
+
+    <table class="ds-default-table">
+        <tbody>
+            <tr>
+                <td colspan="2" ><label>{$Think.lang.admin_predeposit_sn} ： {$info.pdr_sn}</label></td>
+            </tr>
+            <tr>
+                <td colspan="2" ><label>{$Think.lang.admin_predeposit_membername} ： {$info.pdr_member_name}</label></td>
+            </tr>
+            <tr>
+                <td colspan="2" >
+                    <label>{$Think.lang.admin_predeposit_zhuanzhangbank} ： {$info.pdr_paymentbankname}&nbsp;&nbsp;{$info.pdr_paymentbank}</label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" >
+                    <label>{$Think.lang.admin_predeposit_recharge_price}({$Think.lang.ds_yuan}) ： <span class="red">+{$info.pdr_amount}</span></label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" >
+                    <label>{$Think.lang.admin_predeposit_zhuanzhangimgs} ： 
+                        {if $info.pdr_paymentimgs}<a data-lightbox="lightbox-image" href="{:ds_get_pic(ATTACH_RECHARGE,$info.pdr_paymentimgs)}" rel="gal"><img title="{$info.pdr_paymentimgs}" src="{:ds_get_pic(ATTACH_RECHARGE,$info.pdr_paymentimgs)}" width="64" height="64" class="tip"/></a>{/if}
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" ><label>{$Think.lang.admin_predeposit_addtime} ： {$info.pdr_addtime|date="Y-m-d H:i:s"}</label></td>
+            </tr>
+            {if $info.pdr_status eq '1'}
+            <tr>
+                <td colspan="2" ><label>{$Think.lang.admin_predeposit_banksn} ： {$info.pdr_serialnumber}</label></td>
+            </tr>
+            <tr>
+                <td colspan="2" >
+                    <label>{$Think.lang.admin_predeposit_daozhangimgs} ： 
+                        {if $info.pdr_confirmimgs}<a data-lightbox="lightbox-image" href="{:ds_get_pic(ATTACH_RECHARGE,$info.pdr_confirmimgs)}" rel="gal"><img title="{$info.pdr_confirmimgs}" src="{:ds_get_pic(ATTACH_RECHARGE,$info.pdr_confirmimgs)}" width="64" height="64" class="tip"/></a>{/if}
+                    </label>
+                </td>
+            </tr>
+            {/if}
+            {if $info.pdr_confirmtime}
+            <tr>
+                <td colspan="2" >
+                    <label>{$Think.lang.admin_predeposit_confirmtime} ： 
+                        {if $info.pdr_confirmtime|intval('###')}{if $info.pdr_confirmtime eq '0'}{$info.pdr_confirmtime|date="Y-m-d"}{else}{$info.pdr_confirmtime|date="Y-m-d H:i:s"}{/if}{/if}
+                    </label>
+                </td>
+            </tr>
+            {/if}
+            <tr>
+                <td colspan="2" >
+                    <label>{$Think.lang.admin_predeposit_confirmstate} ： 
+                        {if $info.pdr_status eq '0'}
+                            {$Think.lang.admin_predeposit_rechargewaitconfirm}
+                        {elseif $info.pdr_status eq '1'}
+                            {$Think.lang.admin_predeposit_rechargeconfirmsuccess}
+                        {elseif $info.pdr_status eq '-1'}
+                            {$Think.lang.admin_predeposit_rechargeconfirmfail}
+                        {/if}
+                    </label>
+                </td>
+            </tr>
+            {if $info.pdr_admin_remark neq ''}
+            <tr>
+                <td colspan="2" ><label>{$Think.lang.admin_predeposit_adminremark} ： {$info.pdr_admin_remark}</label></td>
+            </tr>
+            {/if}
+
+            <!-- 显示管理员名称 -->
+            {if $info.pdr_admin neq ''}
+            <tr>
+                <td colspan="2" ><label>{$Think.lang.admin_predeposit_adminname} ： {$info.pdr_admin}</label></td>
+            </tr>
+            {/if}
+        </tbody>
+    </table>
+
+    {if $info.pdr_status eq '0'}
+    <form id="recharge_auth_form" method="post" enctype="multipart/form-data" action="">
+        <input type="hidden" name="pdr_id" value="{$info.pdr_id}" />
+        <table class="ds-default-table">
+            <tbody>
+                <tr class="noborder">
+                    <td class="required w120"><label class="validation" for="pdr_status">{$Think.lang.admin_predeposit_confirmstate} ： </label></td>
+                    <td class="vatop rowform">
+                        <label class="radio-label">
+                            <i  class="radio-common selected">
+                                <input type="radio" value="1" name="pdr_status" checked="checked">
+                            </i>
+                            <span>{$Think.lang.admin_predeposit_rechargeconfirmsuccess}</span>
+                        </label>
+                        <label class="radio-label">
+                            <i  class="radio-common ">
+                                <input type="radio" value="-1" name="pdr_status" >
+                            </i>
+                            <span>{$Think.lang.admin_predeposit_confirmfail}</span>
+                        </label>
+                    </td>
+                    <td class="vatop tips"></td>
+                </tr>
+                <tr class="noborder showform">
+                    <td class="required w120"><label class="validation" for="pdr_serialnumber">{$Think.lang.admin_predeposit_banksn} ： </label></td>
+                    <td class="vatop rowform"><input type="text" id="pdr_serialnumber" name="pdr_serialnumber" class="txt"></td>
+                    <td class="vatop tips">{$Think.lang.admin_predeposit_recharge_banksn_tips}</td>
+                </tr>
+                <tr class="noborder showform">
+                    <td class="required w120"><label class="validation" for="pdr_amount">{$Think.lang.admin_predeposit_recharge_price} ： </label></td>
+                    <td class="vatop rowform"><input type="text" id="pdr_amount" name="pdr_amount" class="txt"></td>
+                    <td class="vatop tips"></td>
+                </tr>
+                <tr class="noborder showform">
+                    <td class="required w120"><label class="validation" for="pdr_confirmimgs">{$Think.lang.admin_predeposit_daozhangimgs} ： </label></td>
+                    <td class="vatop rowform">
+                        <span class="type-file-box"><input type='text' name='textfield' id='textfield' class='type-file-text' /><input type='button' name='button' id='button1' value='上传' class='type-file-button' />
+                            <input name="pdr_confirmimgs" type="file" class="type-file-file" id="pdr_confirmimgs" size="30" hidefocus="true" ds_type="change_site_logo">
+                        </span>
+                        <span class="type-file-show">
+                            <div class="uploads-img-preview"><img id="imgpreview" src="" width="160px"></div>
+                        </span>
+                    </td>
+                    <td class="vatop tips">{$Think.lang.admin_predeposit_recharge_dzimgs_tips}</td>
+                </tr>
+                <tr class="noborder">
+                    <td class="required w120"><label class="validation" for="pdr_amount">{$Think.lang.admin_predeposit_adminremark} ： </label></td>
+                    <td class="vatop rowform"><textarea name="lg_desc" ></textarea></td>
+                    <td class="vatop tips">{$Think.lang.admin_predeposit_adminremark_tips}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="tfoot">
+                    <td colspan="15"><input class="btn" type="submit" value="{$Think.lang.ds_submit}"/></td>
+                </tr>
+            </tfoot>
+        </table>
+    </form>
+    {/if}
+
+</div>
+<script>
+    jQuery.browser={};(function(){jQuery.browser.msie=false; jQuery.browser.version=0;if(navigator.userAgent.match(/MSIE ([0-9]+)./)){ jQuery.browser.msie=true;jQuery.browser.version=RegExp.$1;}})();
+</script>
+<script src="{$Think.PLUGINS_SITE_ROOT}/jquery.poshytip.min.js"></script>
+<link rel="stylesheet" href="{$Think.PLUGINS_SITE_ROOT}/js/jquery.lightbox/css/lightbox.min.css">
+<script src="{$Think.PLUGINS_SITE_ROOT}/js/jquery.lightbox/js/lightbox.min.js"></script>
+<script>
+    $(function () {
+        $('.tip').poshytip({
+            className: 'tip-yellowsimple',
+            alignTo: 'target',
+            alignX: 'center',
+            alignY: 'bottom',
+            offsetX: 0,
+            offsetY: 5,
+            allowTipHover: false
+        });
+        $("#pdr_confirmimgs").change(function () {
+            $("#textfield").val($("#pdr_confirmimgs").val());
+            var filepatd=$(this).val();
+            var extStart=filepatd.lastIndexOf(".");
+            var ext=filepatd.substring(extStart,filepatd.lengtd).toUpperCase();
+            if(ext!=".PNG"&&ext!=".GIF"&&ext!=".JPG"&&ext!=".JPEG"){
+                layer.msg("{$Think.lang.file_type_error}");
+                $(this).attr('value','');
+                return false;
+            }
+            if ($(this).val() == '') return false;
+            var imgUrl = getObjectURL(this.files[0]);
+            if(imgUrl){
+                $(".uploads-img-preview").attr("style", "display: block;margin-top: 20px;");
+                $("#imgpreview").attr("src",imgUrl);
+            }
+        });
+        function getObjectURL(file) {
+            var url = null ;
+            if (window.createObjectURL!=undefined) {
+                url = window.createObjectURL(file);
+            } else if (window.URL!=undefined) {
+                url = window.URL.createObjectURL(file);
+            } else if (window.webkitURL!=undefined) {
+                url = window.webkitURL.createObjectURL(file);
+            }
+            return url;
+        }
+        
+        $("input[name='pdr_status']").on('click', function(){
+            var state = $("input[name='pdr_status']:checked").val(); 
+            if(state == 1){
+                $(".showform").show();
+            }else{
+                $(".showform").hide();
+            }
+        });
+        $('#recharge_auth_form').validate({
+            errorPlacement: function(error, element) {
+                error.appendTo(element.parent().parent().find('td:last'));
+            },
+            rules: {
+                pdr_serialnumber: {
+                    required: true
+                },
+                pdr_amount: {
+                    required: true,
+                    number  : true,
+                    min     : 0.01
+                },
+            },
+            messages: {
+                pdr_serialnumber: {
+                    required: '{$Think.lang.admin_predeposit_recharge_banksn_null}'
+                },
+                pdr_amount: {
+                    required: '<i class="iconfont">&#xe64c;</i>{$Think.lang.admin_predeposit_recharge_add_pricenull_error}',
+                    number  : '<i class="iconfont">&#xe64c;</i>{$Think.lang.admin_predeposit_recharge_add_pricemin_error}',
+                    min     : '<i class="iconfont">&#xe64c;</i>{$Think.lang.admin_predeposit_recharge_add_pricemin_error}'
+                }
+            }
+        });
+    });
+</script>

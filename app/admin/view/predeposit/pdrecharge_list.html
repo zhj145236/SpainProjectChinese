@@ -1,0 +1,140 @@
+{include file="public/header" /}
+
+
+
+
+<style type="text/css">
+    .page table tbody tr td img {background: #FFF;display: inline;border: dotted 1px #CBE9F3;padding: 2px;margin: 5px;}
+</style>
+<div class="page">
+    <div class="fixed-bar">
+        <div class="item-title">
+            <div class="subject">
+                <h3>{$Think.lang.ds_predeposit}</h3>
+                <h5></h5>
+            </div>
+            {include file="public/admin_items" /}
+        </div>
+    </div>
+    <form method="get"  name="formSearch" id="formSearch">  
+        <div class="ds-search-form">
+            <dl> 
+                <dt>{$Think.lang.admin_predeposit_membername} </dt>
+                <dd><input type="text" name="mname" class="txt" value='{$Request.param.mname}'></dd>
+            </dl>
+            <dl> 
+                <dt>{$Think.lang.admin_predeposit_addtime} </dt>
+                <dd>
+                    <input type="text" id="query_start_date" name="query_start_date" class="txt date" value="{$Request.param.query_start_date}" >
+                    ~
+                    <input type="text" id="query_end_date" name="query_end_date" class="txt date" value="{$Request.param.query_end_date}" >
+                </dd>
+                <dd>
+                    <select id="confirmstate_search" name="confirmstate_search">
+                        <option value="">{$Think.lang.admin_predeposit_confirmstate}</option>
+                        <option value="0" {if condition="$Request.param.confirmstate_search eq '0'"}selected="selected"{/if}>{$Think.lang.admin_predeposit_rechargewaitconfirm}</option>
+                        <option value="1" {if condition="$Request.param.confirmstate_search eq '1'"}selected="selected"{/if}>{$Think.lang.admin_predeposit_rechargeconfirmsuccess}</option>
+                        <option value="-1" {if condition="$Request.param.confirmstate_search eq '-1'"}selected="selected"{/if}>{$Think.lang.admin_predeposit_rechargeconfirmfail}</option>
+                    </select>
+                </dd>
+            </dl>
+            <div class="btn_group">
+                <input type="submit" class="btn" value="{$Think.lang.ds_search}">
+                {if $filtered}
+                <a href="{:url('Predeposit/pdrecharge_list')}" class="btn btn-default" title="{$Think.lang.ds_cancel}">{$Think.lang.ds_cancel}</a>
+                {/if}
+                <a class="btn btn-mini" href="javascript:export_xls('{:url('Predeposit/export_step1')}')"><span>{$Think.lang.ds_export}Excel</span></a>
+            </div>
+        </div>
+    </form>
+
+
+    <table class="ds-default-table">
+        <thead>
+            <tr class="thead">
+                <th>{$Think.lang.admin_predeposit_sn}</th>
+                <th>{$Think.lang.admin_predeposit_membername}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_zhuanzhangbank}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_recharge_price}({$Think.lang.ds_yuan})</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_zhuanzhangimgs}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_addtime}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_banksn}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_daozhangimgs}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_confirmtime}</th>
+                <th class="align-center">{$Think.lang.admin_predeposit_confirmstate}</th>
+                <th class="align-center">{$Think.lang.ds_handle}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {notempty  name="recharge_list"}
+            {foreach name="recharge_list" item="recharge"}
+            <tr>
+                <td>{$recharge.pdr_sn}</td>
+                <td>{$recharge.pdr_member_name}</td>
+                <td>【{$recharge.pdr_paymentbankname}】<br/>{$recharge.pdr_paymentbank}</td>
+                <td class="red">+{$recharge.pdr_amount}</td>
+                <td>
+                    {if $recharge.pdr_paymentimgs}<a data-lightbox="lightbox-image" href="{:ds_get_pic(ATTACH_RECHARGE,$recharge.pdr_paymentimgs)}" rel="gal"><img title="{$recharge.pdr_paymentimgs}" src="{:ds_get_pic(ATTACH_RECHARGE,$recharge.pdr_paymentimgs)}" width="64" height="64" class="tip"/></a>{/if}
+                </td>
+                <td>{$recharge.pdr_addtime|date="Y-m-d H:i:s"}</td>
+                <td>{$recharge.pdr_serialnumber}</td>
+                <td>
+                    {if $recharge.pdr_confirmimgs}<a data-lightbox="lightbox-image" href="{:ds_get_pic(ATTACH_RECHARGE,$recharge.pdr_confirmimgs)}" rel="gal"><img title="{$recharge.pdr_confirmimgs}" src="{:ds_get_pic(ATTACH_RECHARGE,$recharge.pdr_confirmimgs)}" width="64" height="64" class="tip"/></a>{/if}
+                </td>
+                <td>{if $recharge.pdr_confirmtime|intval('###')}{if $recharge.pdr_confirmtime eq '0'}{$recharge.pdr_confirmtime|date="Y-m-d"}{else}{$recharge.pdr_confirmtime|date="Y-m-d H:i:s"}{/if}{/if}</td>
+                <td>
+                    {if $recharge.pdr_status eq '0'}
+                        {$Think.lang.admin_predeposit_rechargewaitconfirm}
+                    {elseif $recharge.pdr_status eq '1'}
+                        {$Think.lang.admin_predeposit_rechargeconfirmsuccess}
+                    {elseif $recharge.pdr_status eq '-1'}
+                        {$Think.lang.admin_predeposit_rechargeconfirmfail}
+                    {/if}
+                </td>
+                <td>
+                    <a href="javascript:dsLayerOpen('{:url('Predeposit/recharge_info',['id'=>$recharge.pdr_id])}','{$Think.lang.ds_view}')" class="dsui-btn-view"><i class="iconfont"></i>{$Think.lang.ds_view}</a>
+                </td>
+            </tr>
+            {/foreach}
+            {else /}
+            <tr class="no_data">
+                <td colspan="20">{$Think.lang.no_record}</td>
+            </tr>
+            {/notempty}
+        </tbody>
+
+    </table>
+    {$show_page|raw}
+
+
+</div>
+
+<script language="javascript">
+    $(function () {
+        $('#query_start_date').datepicker({dateFormat: 'yy-mm-dd'});
+        $('#query_end_date').datepicker({dateFormat: 'yy-mm-dd'});
+    });
+    function submit_delete(ids_str) {
+        _uri = ADMINSITEURL + "/Predeposit/recharge_del.html?pdr_id=" + ids_str;
+        dsLayerConfirm(_uri, '{$Think.lang.ds_ensure_del}');
+    }
+</script>
+<script>
+    jQuery.browser={};(function(){jQuery.browser.msie=false; jQuery.browser.version=0;if(navigator.userAgent.match(/MSIE ([0-9]+)./)){ jQuery.browser.msie=true;jQuery.browser.version=RegExp.$1;}})();
+</script>
+<script src="{$Think.PLUGINS_SITE_ROOT}/jquery.poshytip.min.js"></script>
+<link rel="stylesheet" href="{$Think.PLUGINS_SITE_ROOT}/js/jquery.lightbox/css/lightbox.min.css">
+<script src="{$Think.PLUGINS_SITE_ROOT}/js/jquery.lightbox/js/lightbox.min.js"></script>
+<script>
+    $(function () {
+        $('.tip').poshytip({
+            className: 'tip-yellowsimple',
+            alignTo: 'target',
+            alignX: 'center',
+            alignY: 'bottom',
+            offsetX: 0,
+            offsetY: 5,
+            allowTipHover: false
+        });
+    });
+</script>

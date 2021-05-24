@@ -1,0 +1,90 @@
+{include file="public/header" /}
+
+
+
+
+<div class="page">
+    <div class="fixed-bar">
+        <div class="item-title">
+            <div class="subject">
+                <h3>{$Think.lang.banks_index_manage}</h3>
+            </div>
+            {include file="public/admin_items" /}
+        </div>
+    </div>
+
+    <form method="get" name="formSearch" id="formSearch">
+        <div class="ds-search-form">
+            <dl>
+                <dt>{$Think.lang.banks_index_name}</dt>
+                <dd><input class="txt" name="search_banks_name" id="search_banks_name" value="{$search_banks_name}" type="text"></dd>
+            </dl>
+            <div class="btn_group">
+                <a href="javascript:document.formSearch.submit();" class="btn " title="{$Think.lang.ds_query}">{$Think.lang.ds_query}</a>
+                {if $search_banks_name != ''}
+                <a class="btn" href="{:url('Banks/index')}" title="{$Think.lang.ds_cancel_search}"><span>{$Think.lang.ds_cancel_search}</span></a>
+                {/if}
+            </div>
+        </div>
+    </form>
+    
+        <table class="ds-default-table">
+            <thead>
+            <tr class="thead">
+                <th class="w24"></th>
+                <th class="w150">{$Think.lang.banks_index_name}</th>
+                <th class="w150">{$Think.lang.banks_index_pic_sign}</th>
+                <th class="w48 align-center">{$Think.lang.banks_index_url}</th>
+                <th class="w48 align-center">{$Think.lang.banks_showtype_state}</th>
+                <th class="w120 align-center">{$Think.lang.ds_handle}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {notempty name="banks_list"}
+            {foreach name="banks_list" item="v"}
+            <tr class="hover edit" id="ds_row_{$v.banks_id}">
+                <td><input value="{$v.banks_id}" class="checkitem" type="checkbox" name="del_banks_id[]"></td>
+                <td class="name"><span class="editable" ds_type="inline_edit" fieldname="banks_name" ajax_branch='banks_name' fieldid="{$v.banks_id}" required="1"  title="{$Think.lang.ds_editable}">{$v.banks_name}</span></td>
+                <td class="picture"><div class="banks-picture"><img src="{:banks_image($v.banks_pic)}" style="height:30px;"/></div></td>
+                <td class="align-center">{$v.banks_url}</td>
+                <td class="align-center yes-onoff">
+                    {if $v.banks_state == '0'}
+                    <a href="JavaScript:void(0);" class="disabled" ajax_branch='banks_state' ds_type="inline_edit" fieldname="banks_state" fieldid="{$v.banks_id}" fieldvalue="0" title="{$Think.lang.ds_editable}"><img src="{$Think.ADMIN_SITE_ROOT}/images/treetable/transparent.gif"></a>
+                    {else /}
+                    <a href="JavaScript:void(0);" class="enabled" ajax_branch='banks_state' ds_type="inline_edit" fieldname="banks_state" fieldid="{$v.banks_id}" fieldvalue="1"  title="{$Think.lang.ds_editable}"><img src="{$Think.ADMIN_SITE_ROOT}/images/treetable/transparent.gif"></a>
+                   {/if}
+                </td>
+                <td class="align-center">
+                    <a href="javascript:dsLayerOpen('{:url('Banks/banks_edit',['banks_id'=>$v.banks_id])}','{$Think.lang.ds_edit}-{$v.banks_name}')" class="dsui-btn-edit"><i class="iconfont"></i>{$Think.lang.ds_edit}</a>
+                    <a href="javascript:dsLayerConfirm('{:url('Banks/banks_del',['banks_id'=>$v.banks_id])}','{$Think.lang.ds_ensure_del}',{$v.banks_id})" class="dsui-btn-del"><i class="iconfont"></i>{$Think.lang.ds_del}</a>
+                </td>
+            </tr>
+           {/foreach}
+           {else /}
+            <tr class="no_data">
+                <td colspan="10">{$Think.lang.ds_no_record}</td>
+            </tr>
+            {/notempty}
+            </tbody>
+            <tfoot>
+                {notempty name="banks_list"}
+                <tr colspan="15" class="tfoot">
+                    <td><input type="checkbox" class="checkall" id="checkallBottom"></td>
+                    <td colspan="16">
+                        <label for="checkallBottom">{$Think.lang.ds_select_all}</label>
+                        &nbsp;&nbsp;<a href="JavaScript:void(0);" class="btn btn-small" onclick="submit_delete_batch()"><span>{$Think.lang.ds_del}</span></a>
+                    </td>
+                </tr>
+                {/notempty}
+            </tfoot>
+        </table>
+        {$showpage|raw}
+    <div class="clear"></div>
+</div>
+<script type="text/javascript" src="{$Think.ADMIN_SITE_ROOT}/js/jquery.edit.js" charset="utf-8"></script>
+<script type="text/javascript">
+    function submit_delete(ids_str){
+        _uri = ADMINSITEURL+"/Banks/banks_del.html?banks_id=" + ids_str;
+        dsLayerConfirm(_uri,'{$Think.lang.ds_ensure_del}');
+    }
+</script>

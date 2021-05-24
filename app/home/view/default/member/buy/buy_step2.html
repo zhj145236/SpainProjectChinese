@@ -1,0 +1,201 @@
+{include file="default/base/mall_top" /} 
+
+<link rel="stylesheet" href="{$Think.HOME_SITE_ROOT}/css/home_cart.css">
+<script src="{$Think.PLUGINS_SITE_ROOT}/mlselection.js"></script>
+<div class="dsc-header">
+    <div class="logo">
+        <a href="{$Think.HOME_SITE_URL}"><img src="{:ds_get_pic(ATTACH_COMMON,$Think.config.ds_config.site_logo)}"/></a>
+    </div>
+    <ul class="dsc-flow">
+        <li class=""><i class="iconfont">&#xe69a;</i>
+            <p>{$Think.lang.cart_index_ensure_order}</p>
+            <sub></sub>
+            <div class="hr"></div>
+        </li>
+        <li class=""><i class="iconfont">&#xe731;</i>
+            <p>{$Think.lang.cart_index_ensure_info}</p>
+            <sub></sub>
+            <div class="hr"></div>
+        </li>
+        <li class="current"><i class="iconfont">&#xe64f;</i>
+            <p>{$Think.lang.cart_index_payment}</p>
+            <sub></sub>
+            <div class="hr"></div>
+        </li>
+        <li class=""><i class="iconfont">&#xe67e;</i>
+            <p>{$Think.lang.cart_index_buy_finish}</p>
+            <sub></sub>
+            <div class="hr"></div>
+        </li>
+    </ul>
+</div>
+<div class="dsc-line"></div>
+<div class="dsc-main">
+  <div class="dsc-title">
+    <h3>{$Think.lang.cart_index_payment}</h3>
+    <h5>{$Think.lang.order_details_can_viewed}<a href="{:url('Memberorder/index')}" >{$Think.lang.my_order}</a>{$Think.lang.carry_out_check}。</h5>
+  </div>
+  <form action="{:url('Payment/real_order')}" method="POST" id="buy_form">
+    <input type="hidden" name="pay_sn" value="{$pay_info.pay_sn}">
+    <!-- <input type="hidden" id="payment_code" name="payment_code" value=""> -->
+    <div class="dsc-receipt-info">
+      <div class="dsc-receipt-info-title">
+        <h3>
+            {$order_remind}
+            {if condition="$pay_amount_online gt 0"}
+            {$Think.lang.online_payment_amount}：<strong>￥{$pay_amount_online}</strong>
+            {/if}
+          </h3>
+      </div>
+      <table class="dsc-table-style">
+        <thead>
+          <tr>
+            <th class="w50"></th>
+            <th class="w200 tl">{$Think.lang.order_number}</th>
+            <th class="tl w150">{$Think.lang.payment_method}</th>
+            <th class="tl">{$Think.lang.amount_of}</th>
+            <th class="w150">{$Think.lang.logistics}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {if count($order_list)>1}
+          <tr>
+            <th colspan="20">{$Think.lang.different_businesses}{:count($order_list)}{$Think.lang.different_suborder_deliveries}</th>
+          </tr>
+          {/if}
+          {foreach name="order_list" item="order" key="key" }
+          <tr>
+            <td></td>
+            <td class="tl">{$order.order_sn}</td>
+            <td class="tl">{$order.payment_state}</td>
+            <td class="tl">￥{$order.order_amount}</td>
+            <td>{$Think.lang.courier}</td>
+          </tr>
+          {/foreach}
+        </tbody>
+      </table>
+    </div>
+    
+      <!--  支付方式信息提示 -->
+      {if !empty($pay_amount_online)}
+      <div id="pd_panel">
+          <div class="pd-account" colspan="6">
+              <div class="dsc-pd-account" style="text-align: center;">
+                  {foreach name="order_list" item="row" }
+                  <div class="mt5 mb5">
+                      <label>
+                          {if $row.payment_code=='bankpay'}
+                          {$Think.lang.cart_step1_bankpay}{$row.payment_desc}{$Think.lang.cart_step1_bankpay_tips}
+                          {/if}
+                      </label>
+                  </div>
+                  {/foreach}
+              </div>
+          </div>
+      </div>
+      {/if}
+      <!-- 填写备注信息 -->
+    <div class="dsc-receipt-info">
+      {if empty($payment_tradeno)}
+      <div class="dsc-receipt-info-title">
+        <h3>{$Think.lang.submit_payment_tradeno}</h3>
+      </div>
+      <div class="dsc-payment-tradeno">
+          <label>
+          {$Think.lang.cart_step1_bankpay_tradeno}：
+          <input class="text w300" type="text" name="tradeno" id="tradeno" placeholder="{$Think.lang.payment_tradeno_placeholder}" title="{$Think.lang.payment_tradeno_placeholder}"  maxlength="150" />
+          </label>
+      </div>
+      {else}
+      <div class="nopay">{$Think.lang.submit_payment_tradeno_notice}</div>
+      {/if}
+    </div>
+    {if $pay_amount_online > 0 && empty($payment_tradeno)}
+    <div class="dsc-bottom tc mb50"><a href="javascript:void(0);" id="next_button" class="dsc-btn dsc-btn-green"><i class="iconfont">&#xe6f0;</i>{$Think.lang.confirm_submit_payment}</a></div>
+    {/if}
+  </form>
+</div>
+<script type="text/javascript">
+$(function(){
+    $('.dsc-payment-list > li').on('click',function(){
+    	$('.dsc-payment-list > li').removeClass('using');
+        $(this).addClass('using');
+        $('#payment_code').val($(this).attr('payment_code'));
+        if($(this).attr('sub_payment_code')!=''){
+            $('#'+$(this).attr('payment_code')+'_sub_payment_code').val($(this).attr('sub_payment_code'));
+        }
+    });
+    $('#next_button').on('click',function(){
+        // if ($('#payment_code').val() == '') {
+        //     layer.alert('{$Think.lang.cart_step2_choose_pay_method}');return false;
+        // }
+        if ($('#tradeno').val() == '') {
+            layer.alert('{$Think.lang.payment_tradeno_placeholder}');return false;
+        }
+        $('#buy_form').submit();
+    });
+    
+    {if !empty($available_pd_amount) || !empty($available_rcb_amount)}
+    function showPaySubmit() {
+        if ($('input[name="pd_pay"]').prop('checked') || $('input[name="rcb_pay"]').prop('checked')) {
+        	$('#pay-password').val('');
+        	$('#password_callback').val('');
+        	$('#pd_password').show();
+        } else {
+        	$('#pd_password').hide();
+        }
+    }
+
+    $('#pd_pay_submit').on('click',function(){
+        if ($('#pay-password').val() == '') {
+                layer.alert('{$Think.lang.enter_payment_password}');return;
+        }
+        $('#password_callback').val('');
+        var url = HOMESITEURL+'/Buy/check_pd_pwd.html'
+	   $.post(url, {'password':$('#pay-password').val()}, function(data){
+            if (data == '1') {
+            	$('#password_callback').val('1');
+            	$('#pd_password').hide();
+            } else {
+            	$('#pay-password').val('');
+                layer.alert('{$Think.lang.payment_password_error}');return;
+            }
+        });
+    });
+    {/if}
+
+    {if !empty($available_rcb_amount)}
+    $('input[name="rcb_pay"]').on('change',function(){
+    	showPaySubmit();
+    	if ($(this).prop('checked') && !$('input[name="pd_pay"]').prop('checked')) {
+        	if ({$available_rcb_amount} >= parseFloat($('#orderTotal').html())) {
+            	$('input[name="pd_pay"]').prop('checked',false).prop('disabled',true);
+        	}
+    	} else {
+    		$('input[name="pd_pay"]').prop('disabled',false);
+    	}
+    });
+    {/if}
+
+    {if !empty($available_pd_amount)}
+    $('input[name="pd_pay"]').on('change',function(){
+    	showPaySubmit();
+    	if ($(this).prop('checked') && !$('input[name="rcb_pay"]').prop('checked')) {
+        	if ({$available_pd_amount} >= parseFloat($('#orderTotal').html())) {
+            	$('input[name="rcb_pay"]').prop('checked',false).prop('disabled',true);
+        	}
+    	} else {
+    		$('input[name="rcb_pay"]').prop('disabled',false);
+    	}    	
+    });
+    {/if}
+});
+</script>
+
+
+<style>
+    .pd-account { background-color: #FFAA01; padding: 2px;}
+
+</style>
+
+{include file="default/base/mall_footer" /}

@@ -1,0 +1,98 @@
+{include file="public/header" /}
+
+
+
+
+
+<div class="page">
+        <form id="banks_form" method="post" name="form1" enctype="multipart/form-data">
+            <input type="hidden" name="banks_id" value="{$banks_array.banks_id}" />
+            <table class="ds-default-table">
+                <tbody>
+                <tr class="noborder">
+                    <td class="required w120"><label class="validation">{$Think.lang.banks_index_name}：</label></td>
+                    <td class="vatop rowform"><input type="text" value="{$banks_array.banks_name}" name="banks_name" id="banks_name" class="txt"></td>
+                    <td class="vatop tips"></td>
+                </tr>
+                <tr class="noborder">
+                    <td class="required w120"><label class="validation">{$Think.lang.banks_index_url}：</label></td>
+                    <td class="vatop rowform"><input type="text" value="{$banks_array.banks_url}" name="banks_url" id="banks_url" class="txt"></td>
+                    <td class="vatop tips"></td>
+                </tr>
+                <tr class="noborder">
+                    <td class="required"><label class="validation">{$Think.lang.banks_index_pic_sign}：</label></td>
+                    <td class="vatop rowform">
+                        {notempty name="$banks_array.banks_pic"}
+                        <span class="type-file-show"> <img class="show_image" src="{$Think.ADMIN_SITE_ROOT}/images/preview.png">
+                            <div class="type-file-preview" style="display: none;"><img id="view_img" src="{:ds_get_pic(ATTACH_BANKS,$banks_array.banks_pic)}"></div>
+                        </span>
+                        {/notempty}
+                        <span class="type-file-box">
+                            <input type='text' name='banks_pic' id='banks_pic' class='type-file-text' />
+                            <input type='button' name='button' id='button' value='上传' class='type-file-button' />
+                            <input name="_pic" type="file" class="type-file-file" id="_pic" size="30" hidefocus="true" />
+                        </span>
+                    </td>
+                    <td class="vatop tips">{$Think.lang.banks_index_upload_tips}{$Think.lang.banks_add_support_type}gif,jpg,png</td>
+                </tr>
+                <tr class="noborder">
+                    <td class="required">{$Think.lang.banks_showtype_state}：</td>
+                    <td class="vatop rowform onoff">
+                        <label for="banks_state1" class="cb-enable {if $banks_array.banks_state == '1'}selected{/if}" title="{$Think.lang.ds_yes}"><span>{$Think.lang.ds_yes}</span></label>
+                        <label for="banks_state0" class="cb-disable {if $banks_array.banks_state == '0'}selected{/if}" title="{$Think.lang.ds_no}"><span>{$Think.lang.ds_no}</span></label>
+                        <input id="banks_state1" name="banks_state" {if $banks_array.banks_state == '1'}checked="checked"{/if} value="1" type="radio">
+                        <input id="banks_state0" name="banks_state" {if $banks_array.banks_state == '0'}checked="checked"{/if} value="0" type="radio"></td>
+                    <td class="vatop tips">{$Think.lang.banks_index_state_tips}</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr class="tfoot">
+                    <td colspan="15" ><input class="btn" type="submit" value="{$Think.lang.ds_submit}"/></td>
+                </tr>
+                </tfoot>
+            </table>
+        </form>
+    </div>
+<script src="{$Think.PLUGINS_SITE_ROOT}/mlselection.js"></script>
+<script>
+    function call_back(picname){
+        $('#banks_pic').val(picname);
+        $('#view_img').attr('src','{$Think.UPLOAD_SITE_URL}/{$Think.ATTACH_BANKS}/'+picname);
+    }
+    //按钮先执行验证再提交表单
+    $(function(){
+
+        $("#banks_form").validate({
+            errorPlacement: function(error, element){
+                error.appendTo(element.parent().parent().find('td:last'));
+            },
+            rules : {
+                banks_name : {
+                    required : true,
+                    remote   : {
+                        url :"{:url('Banks/ajax',['branch'=>'check_banks_name'])}",
+                        type:'get',
+                        data:{
+                            banks_name : function(){
+                                return $('#banks_name').val();
+                            },
+                            id  : '{$banks_array.banks_id}'
+                        }
+                    }
+                },
+                banks_url : {
+                    required : true,
+                }
+            },
+            messages : {
+                banks_name : {
+                    required : '{$Think.lang.banks_add_name_null}',
+                    remote   : '{$Think.lang.banks_add_name_exists}'
+                },
+                banks_url : {
+                    required : '{$Think.lang.banks_add_url_null}'
+                }
+            }
+        });
+    });
+</script>

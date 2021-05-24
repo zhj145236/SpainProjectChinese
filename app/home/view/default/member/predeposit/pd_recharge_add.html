@@ -1,0 +1,142 @@
+{extend name="default/base/base_member" /}
+{block name="member_main"}
+
+
+
+
+<style type="text/css">
+    .dsh-bank-list ul li {vertical-align: top;letter-spacing: normal;word-spacing: normal;display: inline-block;width: 195px;height: 80px;padding: 0;margin: 0 0 20px 0;overflow: hidden;text-align: center;}
+    .dsh-bank-list dl {background-color: #FFF;width: 150px;height: 70px;padding: 4px 9px;border: solid 1px #E6E6E6;margin: 0 auto;border-radius: 3px;box-shadow: inset 0 0 2px rgba(204,204,204,.3);}
+    .dsh-bank-list dl.active {border: solid 1px #f43434;}
+    .dsh-bank-list dl dt {text-align: center;width: 100%;}
+    .dsh-bank-list dt a img {max-width: 150px;max-height: 50px;margin-top: expression(50-this.height/2);}
+    .dsm-default-form dl dd .type-file-text {border-radius: 4px;background: #FAFAFA none repeat scroll 0 0;height: 25px;vertical-align: middle;}
+</style>
+<div class="dsm-default-form">
+    <form method="post" id="recharge_form" enctype="multipart/form-data" action="">
+        <dl>
+            <dt>{$Think.lang.predeposit_recharge_zhuanzhangbank}{$Think.lang.ds_colon}</dt>
+            <dd>
+                {$list_config.site_bankname}&nbsp;&nbsp;{$list_config.site_bank}
+                <span style="margin-left: 50px;"><input type="button" class="js-clip" data-url="{$list_config.site_bank}" value="{$Think.lang.predeposit_copy}" /></span>
+                <input type="hidden" name="bankname" id="bankname" value="{$list_config.site_bankname}" />
+                <input type="hidden" name="bank" id="bank" value="{$list_config.site_bank}" />
+            </dd>
+        </dl>
+        <dl>
+            <dt>{$Think.lang.predeposit_recharge_selectbank}{$Think.lang.ds_colon}</dt>
+            <dd>
+                <div class="dsh-bank-list">
+                    <ul>
+                        {notempty name="banks_list"}
+                        {foreach name="banks_list" item="v" index="idx"}
+                        <li>
+                            <dl class="">
+                                <dt><a href="{$v.banks_url}" ><img class="lazyload" src="{:banks_image($v.banks_pic)}" style="display: inline;"></a></dt>
+                            </dl>
+                        </li>
+                        {/foreach}
+                        {/notempty}
+                    </ul>
+                </div>
+                <p class="hint mt5">{$Think.lang.predeposit_recharge_selectbank_hint|raw}</p>
+            </dd>
+        </dl>
+        <dl>
+            <dt><i class="required">*</i>{$Think.lang.predeposit_recordimgs}{$Think.lang.ds_colon}</dt>
+            <dd>
+                <div class="dsm-pic-name" style="display: inline-block;">
+                    <input type="text" class="type-file-text" name="pic_val" id="pic_val" value="" readonly="readonly"/>
+                </div>
+                <div class="dsm-upload-btn" style="vertical-align: middle;">
+                    <a href="javascript:void(0);">
+                        <span>
+                            <input type="file" hidefocus="true" size="1" class="input-file" name="pic" id="pic" file_id="0" multiple="" maxlength="0"/>
+                        </span>
+                        <p><i class="iconfont">&#xe733;</i>{$Think.lang.predeposit_recordimgs_upload}</p>
+                        <input id="submit_button" style="display:none" type="button" value="&nbsp;" />
+                    </a>
+                </div>
+                <span class="hint-null"></span>
+                <div class="uploads-img-list" style="display: none;">
+                    <span>
+                        <img id="imgurl" src="" style="width: 180px;"/>
+                        <!-- <img title="{$Think.lang.predeposit_recharge_delimgs}" src="{$Think.HOME_SITE_ROOT}/images/member/icon-delete.png" style="position: relative;right: 30px;bottom: 50px;width: 35px;cursor: pointer;"> -->
+                    </span>
+                </div>
+                <p class="hint mt5">{$Think.lang.predeposit_recharge_add_hint|raw}</p>
+            </dd>
+        </dl>
+        <dl class="bottom">
+            <dt>&nbsp; </dt>
+            <dd>
+                <input id="btn_inform_submit" type="submit" class="submit" value="{$Think.lang.ds_submit}" />
+            </dd>
+        </dl>
+    </form>
+</div>
+
+<script src="{$Think.HOME_SITE_ROOT}/js/clipboard.min.js"></script>
+<script type="text/javascript">
+$(function(){
+    $('#pic').change(function(){
+        var filepatd=$(this).val();
+        var extStart=filepatd.lastIndexOf(".");
+        var ext=filepatd.substring(extStart,filepatd.lengtd).toUpperCase();
+        if(ext!=".PNG"&&ext!=".GIF"&&ext!=".JPG"&&ext!=".JPEG"){
+            layer.msg("{$Think.lang.file_type_error}");
+            $(this).attr('value','');
+            return false;
+        }
+        if ($(this).val() == '') return false;
+        var imgUrl = getObjectURL(this.files[0]);
+        var error_td = $("#pic_val").parent('div').parent('dd').find(".hint-null");
+        if(imgUrl){
+            $(".uploads-img-list").attr("style", "display: block;margin-top: 7px;");
+            $("#imgurl").attr("src",imgUrl);
+            $("#pic_val").val($(this).val());
+            $("#pic_val").removeClass("error");
+            error_td.empty();
+        }
+    });
+    function getObjectURL(file) {
+        var url = null ;
+        if (window.createObjectURL!=undefined) {
+            url = window.createObjectURL(file);
+        } else if (window.URL!=undefined) {
+            url = window.URL.createObjectURL(file);
+        } else if (window.webkitURL!=undefined) {
+            url = window.webkitURL.createObjectURL(file);
+        }
+        return url;
+    }
+    var clipboard = new Clipboard('.js-clip', {
+        text: function(e) {
+           return $(e).data('url');
+        }
+    });
+    clipboard.on('success', function(e) {
+        layer.msg("{$Think.lang.predeposit_copy_success}");
+    });
+    var bankscount = "<?php echo count($banks_list);?>";
+    $(".dsh-bank-list").on('click', 'dl', function(){
+        $(".dsh-bank-list dl").removeClass("active");
+        $(this).addClass("active");
+    });
+    $("#recharge_form").submit(function () {
+        $("#pic_val").removeClass("error");
+        let pic_val = $("#pic_val").val();
+        var error_td = $("#pic_val").parent('div').parent('dd').find(".hint-null");
+        var error = '<label id="pic_val-error" class="error" for="pic_val"><i class="iconfont">&#xe64c;</i>{$Think.lang.predeposit_recharge_recordimgs_null}</label>';
+        error_td.empty();
+        if(pic_val == ""){
+            $("#pic_val").addClass("error");
+            error_td.append(error);
+            return false;
+        }
+    });
+});
+</script>
+
+
+{/block}
